@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TinyLink • URL Shortener</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset & Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)),
+                  url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80");
+      background-size: cover;
+      background-position: center;
+      color: #1a1a1a;
+    }
+
+    /* Card Styling */
+    .card {
+      background: #ffffffcc; /* semi-transparent white */
+      padding: 50px 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: #00796B;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 1px solid #cfd8dc;
+      border-radius: 15px;
+      font-size: 15px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #26A69A;
+      box-shadow: 0 0 0 4px rgba(38, 166, 154, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      background: linear-gradient(90deg, #26A69A, #80CBC4);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #00796B, #26A69A);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Result Box */
+    .result-box {
+      margin-top: 20px;
+      padding: 20px 25px;
+      border-radius: 20px;
+      background: #E0F2F1cc; /* semi-transparent teal */
+      border: 1px solid #B2DFDB;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      font-size: 16px;
+      color: #004D40;
+      word-break: break-word;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .result-box a {
+      color: #00796B;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Shorten Your Link</h1>
+
+    <label for="urlInput">Paste your long URL</label>
+    <input id="urlInput" type="url" placeholder="https://example.com/my-long-url" />
+
+    <button onclick="shorten()">Shorten URL →</button>
+  </div>
+
+  <!-- Result box appears here -->
+  <div id="result" class="result-box" style="display:none;"></div>
+
+  <script>
+    async function shorten() {
+      const url = document.getElementById("urlInput").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!url) {
+        alert("Please enter a valid URL");
+        return;
+      }
+
+      try {
+        const res = await fetch("https://YOUR-RENDER-APP.onrender.com/api/shorten", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+
+        const data = await res.json();
+        resultDiv.style.display = "block";
+
+        if (res.ok) {
+          resultDiv.innerHTML = `
+            <p><strong>Your Short Link:</strong></p>
+            <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>
+          `;
+        } else {
+          resultDiv.innerHTML = `<p style='color:red;'>Error: ${data.error}</p>`;
+        }
+      } catch (err) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "<p style='color:red;'>Network error, try again.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
